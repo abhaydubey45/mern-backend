@@ -1,7 +1,7 @@
-import {asynchandler} from '../utils/asynchandler.js'
+import {asyncHandler} from '../utils/asynchandler.js'
 
-const registerUser = asynchandler(async (req,res)=>{
-    res.send("Register User")
+const registerUser = asyncHandler(async (req,res)=>{
+   
 })
 
 export  {registerUser};
