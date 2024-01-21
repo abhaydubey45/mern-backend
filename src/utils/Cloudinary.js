@@ -14,6 +14,7 @@ try{
     }
       const response =await cloudinary.uploader.upload(localFilePath,{resource_type:"auto"})
       return response
+      fs.unlinkSync(localFilePath); //remove the locally saved file as upload operation succeeded
 
 
 } catch(error){

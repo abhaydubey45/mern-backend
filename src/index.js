@@ -4,13 +4,13 @@ import db from './db/index.js';
 import { app } from './app.js';
 
 
-dotenv.config({ path: './env' });
+dotenv.config({ path: './.env' });
 
 
 db()
   .then(() => {
     
-    const port = 5000;
+    const port =  5000;
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });

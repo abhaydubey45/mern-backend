@@ -31,13 +31,33 @@ const UserSchema = new mongoose.Schema({
         index: true,
         unique : true
     },
-})
+    
+}, {timestamps:true}
+)
 
-UserSchema.pre("save" , async function (next){
-    if(!this.isModified) return next()
-   this.password = await bcrypt.hash(this.password , 10)
-   next()
-})
+UserSchema.pre('save', async function(next) {
+    try {
+        if (!this.isModified('password')) return next();
+
+        // Ensure the password is not empty
+        if (!this.password || typeof this.password !== 'string') {
+            throw new Error('Invalid password');
+        }
+
+        // Generate a salt
+        const salt = await bcrypt.genSalt(10);
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(this.password, salt);
+
+        // Set the hashed password
+        this.password = hashedPassword;
+
+        next();
+    } catch (error) {
+        return next(error);
+    }
+});
 
 UserSchema.methods.isPasswordCorrect = async function (password){
    return await bcrypt.compare(password , this.password)
