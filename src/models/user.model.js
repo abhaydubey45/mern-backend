@@ -20,19 +20,44 @@ const UserSchema = new mongoose.Schema({
     fullname:{
         type: String,
         required:true,
-        trim: true
+        trim: true,
+        index: true
         
     },
-    username:{
+    password:{
         type: String,
         required:true,
         lowercase: true,
         trim: true,
-        index: true,
+        
         unique : true
     },
     
-}, {timestamps:true}
+        avatar:{
+            type: String,
+            required:true,
+                
+            
+        },
+        coverImage:{
+            type:String
+        },
+    watchHistory:[{
+        type:mongoose.Schema.ObjectId,
+        ref:"Video"
+    }],
+    password:{
+        type:String,
+        required:[true, "Please provide a password"],
+    },
+    refreshToken:{
+        type:String
+    },
+    },
+        
+    
+    
+ {timestamps:true}
 )
 
 UserSchema.pre('save', async function(next) {
@@ -44,10 +69,10 @@ UserSchema.pre('save', async function(next) {
             throw new Error('Invalid password');
         }
 
-        // Generate a salt
+        
         const salt = await bcrypt.genSalt(10);
 
-        // Hash the password
+        
         const hashedPassword = await bcrypt.hash(this.password, salt);
 
         // Set the hashed password
