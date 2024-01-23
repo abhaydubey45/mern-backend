@@ -141,15 +141,87 @@ try {
 }
 })
 
+const changePassword = asyncHandler(async(req,res) =>{ //user login hai middleware se check kar lenge
+  const { oldPassword , newPassword } = req.body
+  const user = await User.findById(req.user?._id)
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+  if(!isPasswordCorrect){
+    throw new ApiError(400, "invalid old password")
+  }
+ await user.save({validateBeforeSave:false})
+ return res.status(200).json(new ApiResponse(200, {} , "password changed successfully"))
 
+})
 
+const getCurrentUser = async(req,res) => {
+  try {
+    return res.status(200)
+    .json(200 , req.user , "current user fetched successfully")
+  } catch (error) {
+    throw new ApiError(500, "something went wrong")
+  }
+}
 
+const updateAccount = asyncHandler(async(req ,res)=> {
+  const {fullName , email} = req.body
+  if(!fullName || !email){
+    throw new ApiError(400 , "all fields are required")
+  }
+   //req.user.id
+  const user= User.findByIdAndUpdate(req.user?._id , 
+    {
+      $set :{
+        fullName,
+        email:email
+      }
+    },
+    {new:true}
+    ).select("-password")
+    return res.status(200).json(new ApiResponse(200 ,user , "user updated succesfully" ))
 
+})
+
+const updateAvatar = asyncHandler(async(req,res)=> {
+   const avatarLocal =req.file?.path
+   if(!avatarLocal){
+     throw new ApiError(400 , "please upload avatar")
+   }
+    const avatar =await uploadOnCloudinary(avatarLocal)
+    if(!avatar){
+      throw new ApiError(500 , "something went wrong while uploading avatar")
+    }
+    const user = await User.findByIdAndUpdate(req.user?._id , {
+      $set:{
+        avatar:avatar.url
+      }
+    },{new:true}).select("-password")
+})
+
+const updateCoverImage = asyncHandler(async(req,res)=> {
+  const coverImageLocal =req.file?.path
+  if(!coverImageLocal){
+    throw new ApiError(400 , "please upload cover image")
+  }
+   const coverImage =await uploadOnCloudinary(coverImageLocal)
+   if(!coverImage){
+     throw new ApiError(500 , "something went wrong while uploading cover image")
+   }
+   const user = await User.findByIdAndUpdate(req.user?._id , {
+     $set:{
+       coverImage:coverImage.url
+     }
+   },{new:true}).select("-password")
+})
 
 export  {
   registerUser,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  changePassword,
+  getCurrentUser,
+  updateAccount,
+  updateAvatar,
+  updateCoverImage
 
     };
